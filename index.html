@@ -9,22 +9,22 @@
     ></script>
 
     <script>
-      // ?�� Test için kullanılan örnek Identity Token (gerçek kullanımda backend'den alınmalı!)
-      window.identityToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNo80suSojAAQNF_Yd1UhQQSmapZABFEbB6CCmwo3qBEQVSErvn3cTazPdt7f7jxwf3iwFrr9LXA8tt0uaHK0Y6IIIm9lPJOC7ITl_ZFtqHuvKKY1UWDdYXtmQ1XvkAhO_Vm1cst7hf7OgZ-g90rfAfbcc3Xxuj5hSIUsR5nLJJm8JQorsM7bB3c3dtpDEaPBq2amGFdh3BU1UI4xDxy95MvHQReqO1cRKxKuhhLS97NLMrUsHw_G3-iNtZgEocqrLYvcKXRlJShbCi5aJsruvAEnqvDKZ2pJsLsQTugHptgO6PmQK10oGDcmWpVHLb6pMzs4c7DMl31Mc8sJ41lH4DsfS7qZt9cW-B92wrR2M6xBhlvVuZYweOgxZ4FcV3a517rh4TdS8NIuvN0zx5d5SisFI6sw5Z6EpRYO9lFsL-IINTeNNgNWOC7SqSRF8t07Wjk1qSdb6-mfWHlLDFgOOfHV8T7EmJ6PzfmkJI82ny7cyHdsC37CG2AIhNnjUySkvNbvMDIlY4uNpfNw4JFF8SbtEmdpF-2_cswROlZKL7LzyfvN_fFteknukBECQmyBOUvrnz3_2H1D8Zn9tlCo4B-DIkIAZ1Ia0o1RaYroqtEh1gH3J-_AAAA__8.jiQ3D2C_O9nFJ3yqqXF2MLZpCUK8rBe8lVASZ1fshwFPCuIVx7jkDffXvLOzys_Gp7aC25u_dUDUYK47rAOVWw"; // ?rnek token buraya gelecek
+      // ?§ª Test iÃ§in kullanÄ±lan Ã¶rnek Identity Token (gerÃ§ek kullanÄ±mda backend'den alÄ±nmalÄ±!)
+      window.identityToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNo00k1zojAAgOH_wrnMkECSsjN7iAQQFEG-Crk4YERQQCpVwM7-9-0e9vpc3_dbGr-kX1JjDs-0eJ-UqAXWug6SKl4F-MT7Dt_8h6cNGxJesEisMiCjSKeTZyf-VoF3_dXN-qGtBr3Bw2vXj3FU46CHc-yOpny2x30kKBDc4mWXo0V5IIbP2R02Pm7vzTTG457FzergZOdzBsfVSoCEy2oQThEqr4pHQdL2G0r0SzJyu8q0Q7SDntM2D5C53lcqGKL7M_Xa_BXTql7icsuYt2NDI5Lz1YV0qGIbIt7ofiFfiWw485VyOhl5Zi-PJjyNGY9x7-07ZUKK9uBq_1KVyMdbVN9UN3Uo6J_HGqw_G98xS_fU3sGzqpnb8y6-mXo5y2I05p4TII6JGXani89CrQmfQQXSrsWb1Qeg3PjYiTi8akpmzCzefmIgt5XG8j3Xmekb5FYXbbR7n0KxOXYHG2bLMX3mcoTUzhqW2vksyDFfe8Ei0A3v9EhV1wrViW-qDinIZdauMA9QGmDntf7aQNHGfF3UhX8YXu7wtG0NPQSNAnn52P-W3qSm-IkOiIZUCHQFvUmnefgPEP6D8VH-bGEwhf2YqqmqYhFkMmZQnb0Ta0UsiC1F-vMXAAD__w.ZK6HRqnuWjyzDj-DNwszjrM44NbNHLGkTwjrTI3mt23b_CembH7ook9eHv9RH5lUAK0nHbNmJkhVNB6jD3ATWQ"; // ?rnek token buraya gelecek
     </script>
   </head>
   <body>
-    <div>Embed alanı:</div>
+    <div>Embed alanÄ±:</div>
     <div id="mydossier" style="border: 1px solid #ccc; margin-top: 10px;"></div>
 
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function () {
         if (!window.identityToken) {
-          alert("??Identity token bulunamadı!");
+          alert("??Identity token bulunamadÄ±!");
           return;
         }
 
-        console.log("?�� Sayfa yüklendi, Identity Token ile embed ba?lıyor...");
+        console.log("?“¦ Sayfa yÃ¼klendi, Identity Token ile embed ba?lÄ±yor...");
 
         const container = document.getElementById("mydossier");
         const dossierUrl =
@@ -38,17 +38,17 @@
             enableResponsive: true,
             enableCustomAuthentication: true,
             customAuthenticationType:
-              microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN, // ?? Burada de?i?iklik yapıldı!
+              microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN, // ?? Burada de?i?iklik yapÄ±ldÄ±!
             getLoginToken: () => {
-              console.log("?? Identity Token gönderiliyor:", window.identityToken);
+              console.log("?? Identity Token gÃ¶nderiliyor:", window.identityToken);
               return Promise.resolve(window.identityToken);
             },
           })
           .then((dossier) => {
-            console.log("??Embed i?lemi ba?arılı:", dossier);
+            console.log("??Embed i?lemi ba?arÄ±lÄ±:", dossier);
           })
           .catch((err) => {
-            console.error("??Embed sırasında hata:", err);
+            console.error("??Embed sÄ±rasÄ±nda hata:", err);
           });
       });
     </script>
