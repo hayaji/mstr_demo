@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MicroStrategy Embedded Dossier</title>
+    <script
+      type="text/javascript"
+      src="https://report.diasteknoloji.com/MicroStrategyLibrary/javascript/embeddinglib.js"
+    ></script>
+
+    <script>
+      // ?�� Test için kullanılan örnek Identity Token (gerçek kullanımda backend'den alınmalı!)
+      window.identityToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNo80suSojAAQNF_Yd1UhQQSmapZABFEbB6CCmwo3qBEQVSErvn3cTazPdt7f7jxwf3iwFrr9LXA8tt0uaHK0Y6IIIm9lPJOC7ITl_ZFtqHuvKKY1UWDdYXtmQ1XvkAhO_Vm1cst7hf7OgZ-g90rfAfbcc3Xxuj5hSIUsR5nLJJm8JQorsM7bB3c3dtpDEaPBq2amGFdh3BU1UI4xDxy95MvHQReqO1cRKxKuhhLS97NLMrUsHw_G3-iNtZgEocqrLYvcKXRlJShbCi5aJsruvAEnqvDKZ2pJsLsQTugHptgO6PmQK10oGDcmWpVHLb6pMzs4c7DMl31Mc8sJ41lH4DsfS7qZt9cW-B92wrR2M6xBhlvVuZYweOgxZ4FcV3a517rh4TdS8NIuvN0zx5d5SisFI6sw5Z6EpRYO9lFsL-IINTeNNgNWOC7SqSRF8t07Wjk1qSdb6-mfWHlLDFgOOfHV8T7EmJ6PzfmkJI82ny7cyHdsC37CG2AIhNnjUySkvNbvMDIlY4uNpfNw4JFF8SbtEmdpF-2_cswROlZKL7LzyfvN_fFteknukBECQmyBOUvrnz3_2H1D8Zn9tlCo4B-DIkIAZ1Ia0o1RaYroqtEh1gH3J-_AAAA__8.jiQ3D2C_O9nFJ3yqqXF2MLZpCUK8rBe8lVASZ1fshwFPCuIVx7jkDffXvLOzys_Gp7aC25u_dUDUYK47rAOVWw"; // ?rnek token buraya gelecek
+    </script>
+  </head>
+  <body>
+    <div>Embed alanı:</div>
+    <div id="mydossier" style="border: 1px solid #ccc; margin-top: 10px;"></div>
+
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.identityToken) {
+          alert("??Identity token bulunamadı!");
+          return;
+        }
+
+        console.log("?�� Sayfa yüklendi, Identity Token ile embed ba?lıyor...");
+
+        const container = document.getElementById("mydossier");
+        const dossierUrl =
+          "https://report.diasteknoloji.com/MicroStrategyLibrary/app/B1AE84B54741CE143087C3B900E29D47/FD3757D7439EC2DC7E1A3692AC22CF89";
+
+        microstrategy.dossier
+          .create({
+            url: dossierUrl,
+            placeholder: container,
+            containerHeight: "1000px",
+            enableResponsive: true,
+            enableCustomAuthentication: true,
+            customAuthenticationType:
+              microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN, // ?? Burada de?i?iklik yapıldı!
+            getLoginToken: () => {
+              console.log("?? Identity Token gönderiliyor:", window.identityToken);
+              return Promise.resolve(window.identityToken);
+            },
+          })
+          .then((dossier) => {
+            console.log("??Embed i?lemi ba?arılı:", dossier);
+          })
+          .catch((err) => {
+            console.error("??Embed sırasında hata:", err);
+          });
+      });
+    </script>
+  </body>
+</html>
