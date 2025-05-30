@@ -26,9 +26,6 @@
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({username: USERNAME, password: PASSWORD, loginMode: 1})
       });
-      if (loginRes.ok) {
-        throw new Error(`Giriş Başarılı: ${loginRes.status}`);
-      }      
       if (!loginRes.ok) {
         throw new Error(`Giriş başarısız: ${loginRes.status}`);
       }
@@ -39,9 +36,6 @@
         method: 'POST',
         headers: {'Content-Type':'application/json','X-MSTR-AuthToken': authToken}
       });
-    // if (!idRes.ok) {
-       // throw new Error(`Identity token alınamadı: ${idRes.status}`);
-      //}
       if (!idRes.ok) {
         throw new Error(`Identity token alınamadı: ${idRes.status}`);
       }
