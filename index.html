@@ -1,56 +1,75 @@
 <!DOCTYPE html>
 <html lang="tr">
-  <head>
-    <meta charset="UTF-8" />
-    <title>MicroStrategy Embedded Dossier</title>
-    <script
-      type="text/javascript"
-      src="https://report.diasteknoloji.com/MicroStrategyLibrary/javascript/embeddinglib.js"
-    ></script>
+<head>
+  <meta charset="UTF-8" />
+  <title>MSTR Dossier Embed (Identity Token ile)</title>
 
-    <script>
-      // 🔐 Test için kullanılan örnek Identity Token
-      window.identityToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNo0ksmyY1AAQP_F-qky3ktX9QLXLGaCTUoIkiBiiOFV_3u_XvT21Nmd841NM_YLi9pEn4J5DuErkc-Gu0IuX8QR78Bi-Cm18KX1YosDLV6dAyV-92K4rrlUk2i76l6xVAN_B8Nh91MYNMDtqS00Jhmv1ckLSoEsMyW7dim7EwuLQJ2M1N0B7Xhfp3DyUHgXL3pS1wk1iWJJRhlOu_4asAkYBdPJ2-xV9ZmWRSk3fvA-Ofl6_eDNXqs8-yjrWOmHrV9dymyMl7b7MX5FnfexUMqfDkF7J4h9WJ_oOao3UnpMbT8ceSObfpNd1Ey2Yjlk7m0v-CBow3VWWUD4jhrNSG1F0nZW_mi53Ta21BmUB2NvysjqsnnQ1sh0hqoV3KThaMtx19fwSqyUZQ-CXg0gxEMy7lpgimdSyKSzXYb-kyESaUOh9QYk3lYMSr2MR7IjwVeTt4HNrX5pFt1FpZK9iD8pHrB0pwx7o79zWKTayd1LMEZXBxiWtugHebrNLnF7Ji7zpFKXjV2gH9psUmUbZlre5M5lOIzho6oMu5RC4OL72fuNfWH3_Cc6CRkOEDRDwy_stg3_AST-gWm5_mwhIQIxLP3j0IQCWRkhSeARBxURKhRQCOzPXwAAAP__.RXN4jMUqgtCmW1qen0rkYQ8CKZIm2irpH02jDBlOW3VqsqjyBpGLFFBbjrFGJvARXlHp-A0QEOXH-4976EGWoQ";
-    </script>
-  </head>
-  <body>
-    <div>Embed Alanı:</div>
-    <div id="mydossier" style="border: 1px solid #ccc; margin-top: 10px;"></div>
+  <!-- Embedding SDK -->
+  <script src="https://report.diasteknoloji.com/MicroStrategyLibrary/javascript/embeddinglib.js"></script>
 
-    <script type="text/javascript">
-      document.addEventListener("DOMContentLoaded", function () {
-        if (!window.identityToken) {
-          alert("❌ Identity token bulunamadı!");
-          return;
-        }
+  <style>
+    #mydossier{border:1px solid #ccc;margin-top:10px}
+  </style>
 
-        console.log("📦 Sayfa yüklendi, Identity Token ile embed başlıyor...");
+  <script>
+    //— Parametreler —
+    const BASE_URL   = 'https://report.diasteknoloji.com/MicroStrategyLibrary';
+    const USERNAME   = 'portaldbys.user';
+    const PASSWORD   = 'Aa123456';      // ⛔ Üretimde istemciye koymayın!
+    const DOSSIER_URL= 'https://report.diasteknoloji.com/MicroStrategyLibrary/app/B1AE84B54741CE143087C3B900E29D47/FD3757D7439EC2DC7E1A3692AC22CF89';
 
-        const container = document.getElementById("mydossier");
-        const dossierUrl =
-          "https://report.diasteknoloji.com/MicroStrategyLibrary/app/B1AE84B54741CE143087C3B900E29D47/FD3757D7439EC2DC7E1A3692AC22CF89";
-
-        microstrategy.dossier
-          .create({
-            url: dossierUrl,
-            placeholder: container,
-            containerHeight: "1000px",
-            enableResponsive: true,
-            enableCustomAuthentication: true,
-            customAuthenticationType:
-              microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN,
-            getLoginToken: () => {
-              console.log("🔐 Identity Token gönderiliyor:", window.identityToken);
-              return Promise.resolve(window.identityToken);
-            },
-          })
-          .then((dossier) => {
-            console.log("✅ Embed işlemi başarılı:", dossier);
-          })
-          .catch((err) => {
-            console.error("❌ Embed sırasında hata:", err);
-          });
+    /** auth/login  ➜  identityToken  **/
+    async function fetchIdentityToken() {
+      // 1) Giriş
+      const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username: USERNAME, password: PASSWORD, loginMode: 1})
       });
-    </script>
-  </body>
+      if (!loginRes.ok) {
+        throw new Error(`Giriş başarısız: ${loginRes.status}`);
+      }
+      const authToken = loginRes.headers.get('X-MSTR-AuthToken');
+
+      // 2) Identity Token
+      const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-MSTR-AuthToken': authToken}
+      });
+      if (!idRes.ok) {
+        throw new Error(`Identity token alınamadı: ${idRes.status}`);
+      }
+      const { identityToken } = await idRes.json();
+      return identityToken;
+    }
+
+    // Sayfa yüklendiğinde token al ve embed et
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const token = await fetchIdentityToken();
+        console.log('🔐 Identity Token alındı:', token);
+
+        await microstrategy.dossier.create({
+          url: DOSSIER_URL,
+          placeholder: document.getElementById('mydossier'),
+          containerHeight: '1000px',
+          enableResponsive: true,
+          enableCustomAuthentication: true,
+          customAuthenticationType:
+            microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN,
+          getLoginToken: () => Promise.resolve(token)
+        });
+
+        console.log('✅ Dossier embed edildi.');
+      } catch (err) {
+        console.error('❌ Hata:', err);
+        alert(err.message);
+      }
+    });
+  </script>
+</head>
+<body>
+  <h3>Embed Alanı:</h3>
+  <div id="mydossier"></div>
+</body>
 </html>
