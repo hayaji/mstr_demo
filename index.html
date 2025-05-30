@@ -44,15 +44,17 @@
       const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
         method: 'POST',
         headers: {
-          'X-MSTR-AuthToken': 'authToken',
-          'Accept': '*/*',
+          'X-MSTR-AuthToken': authToken,
+          'Accept': 'application/json', // */* yerine application/json kullanın
+          'Content-Type': 'application/json' // Bu header'ı ekleyin
         },
-        body: '', // Boş body gerekiyor (curl örneği gibi)
+        body: JSON.stringify({}), // Boş obje gönderin
       });
 
       if (!idRes.ok) {
-        console.error('❌ [2] IdentityToken alınamadı:', idRes.status, idRes.statusText);
-        throw new Error(`Identity token alınamadı: ${idRes.status}`);
+        const error = await idRes.json();
+        console.error('❌ [2] IdentityToken alınamadı:', error);
+        throw new Error(`Identity token alınamadı: ${error.message}`);
       }
 
       const { identityToken } = await idRes.json();
