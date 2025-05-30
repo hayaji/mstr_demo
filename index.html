@@ -44,7 +44,7 @@
       const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
         method: 'POST',
         headers: {
-          'X-MSTR-AuthToken': authToken,
+          'X-MSTR-AuthToken': 'authToken',
           'Accept': '*/*',
         },
         body: '', // Boş body gerekiyor (curl örneği gibi)
