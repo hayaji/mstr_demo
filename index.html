@@ -22,17 +22,17 @@
     let globalIdentityToken = '';
 
     // Header olarak identity token göndermek için config
-    window.mstrAppConfig = {
-      customHeaders: [
-        {
-          name: "X-MSTR-IdentityToken",
-          value: async () => {
-            console.log("🔄 Header için identity token hazırlanıyor...");
-            return globalIdentityToken;
-          }
-        }
-      ]
-    };
+    //window.mstrAppConfig = {
+      //customHeaders: [
+     //   {
+     //     name: "X-MSTR-IdentityToken",
+     //     value: async () => {
+     //       console.log("🔄 Header için identity token hazırlanıyor...");
+     //       return globalIdentityToken;
+    //      }
+    //    }
+    //  ]
+   // };
 
     /** 🧠 1. Oturum aç ve identityToken al **/
     async function fetchIdentityToken() {
