@@ -44,7 +44,7 @@
       const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
         method: 'POST',
         headers: {
-          'X-MSTR-AuthToken': authToken,
+          'X-MSTR-IdentityToken': authToken,
           'Accept': 'application/json', // */* yerine application/json kullanın
           'Content-Type': 'application/json' // Bu header'ı ekleyin
         },
