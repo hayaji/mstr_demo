@@ -4,68 +4,93 @@
   <meta charset="UTF-8" />
   <title>MSTR Dossier Embed (Identity Token ile)</title>
 
-  <!-- Embedding SDK -->
-  <script src="https://report.diasteknoloji.com/MicroStrategyLibrary/javascript/embeddinglib.js"></script>
-
   <style>
-    #mydossier { border: 1px solid #ccc; margin-top: 10px; }
+    #mydossier {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
   </style>
 
+  <!-- 1. Önce global ayarları tanımla -->
   <script>
-    //— Parametreler —
     const BASE_URL    = 'https://report.diasteknoloji.com/MicroStrategyLibrary';
-    const USERNAME    = 'portaldbys.user';
-    const PASSWORD    = 'Aa123456'; // ⛔ Üretimde istemciye koymayın!
+    const USERNAME    = 'partaldbys.user';
+    const PASSWORD    = 'Aa123456';  // ⛔ Gerçek sistemde tarayıcıda kullanma!
     const DOSSIER_URL = 'https://report.diasteknoloji.com/MicroStrategyLibrary/app/B1AE84B54741CE143087C3B900E29D47/FD3757D7439EC2DC7E1A3692AC22CF89';
 
-    async function fetchIdentityToken() {
-      try {
-        console.log('🔄 [1] Giriş başlatılıyor...');
-        const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: USERNAME, password: PASSWORD, loginMode: 1 })
-        });
+    // Token'ı önceden alıp dışarıdan ulaşılabilir hale getir
+    let globalIdentityToken = '';
 
-        if (!loginRes.ok) {
-          console.error(`❌ [1] Giriş başarısız: HTTP ${loginRes.status}`);
-          throw new Error(`Giriş başarısız (status: ${loginRes.status})`);
-        }
-
-        const authToken = loginRes.headers.get('X-MSTR-AuthToken');
-        console.log('✅ [1] Giriş başarılı, Auth Token alındı:', authToken);
-
-        console.log('🔄 [2] Identity Token alınıyor...');
-        const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-MSTR-AuthToken': authToken
+    // Header olarak identity token göndermek için config
+    window.mstrAppConfig = {
+      customHeaders: [
+        {
+          name: "X-MSTR-IdentityToken",
+          value: async () => {
+            console.log("🔄 Header için identity token hazırlanıyor...");
+            return globalIdentityToken;
           }
-        });
-
-        if (!idRes.ok) {
-          console.error(`❌ [2] Identity Token alınamadı: HTTP ${idRes.status}`);
-          throw new Error(`Identity Token alınamadı (status: ${idRes.status})`);
         }
+      ]
+    };
 
-        const { identityToken } = await idRes.json();
-        console.log('✅ [2] Identity Token başarıyla alındı:', identityToken);
+    /** 🧠 1. Oturum aç ve identityToken al **/
+    async function fetchIdentityToken() {
+      console.log("🔐 Kullanıcı ile giriş yapılıyor...");
 
-        return identityToken;
-      } catch (err) {
-        console.error('❌ [X] Token alma işlemlerinde hata:', err);
-        throw err;
+      // 1) Giriş
+      const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: USERNAME, password: PASSWORD, loginMode: 1 })
+      });
+
+      if (!loginRes.ok) {
+        console.error("❌ Giriş başarısız. HTTP kodu:", loginRes.status);
+        throw new Error(`Giriş başarısız: ${loginRes.status}`);
       }
-    }
 
-    // Sayfa yüklendiğinde token al ve embed et
+      const authToken = loginRes.headers.get('X-MSTR-AuthToken');
+      console.log("✅ Giriş başarılı. AuthToken alındı:", authToken);
+
+      // 2) Identity Token al
+      console.log("🔄 Identity token alınıyor...");
+      const idRes = await fetch(`${BASE_URL}/api/auth/identityToken`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-MSTR-AuthToken': authToken
+        }
+      });
+
+      if (!idRes.ok) {
+        console.error("❌ Identity token alınamadı. HTTP kodu:", idRes.status);
+        throw new Error(`Identity token alınamadı: ${idRes.status}`);
+      }
+
+      const { identityToken } = await idRes.json();
+      console.log("✅ Identity token alındı:", identityToken);
+      return identityToken;
+    }
+  </script>
+
+  <!-- 2. SDK’yı sonradan yükle -->
+  <script src="https://report.diasteknoloji.com/MicroStrategyLibrary/javascript/embeddinglib.js"></script>
+</head>
+<body>
+  <h3>Embed Alanı:</h3>
+  <div id="mydossier"></div>
+
+  <script>
+    // 3. Sayfa yüklendiğinde işlem başlasın
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        console.log('🚀 Sayfa yüklendi, işlem başlıyor...');
+        console.log("🚀 Sayfa yüklendi. Token alma işlemi başlıyor...");
         const token = await fetchIdentityToken();
+        globalIdentityToken = token; // Header için dışa aktar
 
-        console.log('🔄 [3] Dossier embed işlemi başlatılıyor...');
+        // Embed işlemi
+        console.log("📦 Dossier embed işlemi başlatılıyor...");
         await microstrategy.dossier.create({
           url: DOSSIER_URL,
           placeholder: document.getElementById('mydossier'),
@@ -74,19 +99,18 @@
           enableCustomAuthentication: true,
           customAuthenticationType:
             microstrategy.dossier.CustomAuthenticationType.IDENTITY_TOKEN,
-          getLoginToken: () => Promise.resolve(token)
+          getLoginToken: () => {
+            console.log("➡️ Embed'e identity token veriliyor.");
+            return Promise.resolve(token);
+          }
         });
 
-        console.log('✅ [3] Dossier embed işlemi başarılı.');
+        console.log("✅ Dossier başarıyla embed edildi.");
       } catch (err) {
-        console.error('❌ [X] Genel hata:', err);
-        alert(`Hata oluştu: ${err.message}`);
+        console.error("❌ Bir hata oluştu:", err);
+        alert("Hata: " + err.message);
       }
     });
   </script>
-</head>
-<body>
-  <h3>Embed Alanı:</h3>
-  <div id="mydossier"></div>
 </body>
 </html>
